@@ -4,7 +4,7 @@
 
 # Auto-load API key from ~/.bashrc if not already exported in current shell session
 if [ -z "$GEMINI_API_KEY" ]; then
-  KEY_LINE=$(grep "export GEMINI_API_KEY=" /home/niranjan/.bashrc | head -n 1)
+  KEY_LINE=$(grep "export GEMINI_API_KEY=" "$HOME/.bashrc" 2>/dev/null | head -n 1)
   if [ -n "$KEY_LINE" ]; then
     KEY_VAL=$(echo "$KEY_LINE" | cut -d'"' -f2)
     if [ -n "$KEY_VAL" ] && [ "$KEY_VAL" != "export GEMINI_API_KEY=" ]; then
@@ -15,7 +15,7 @@ fi
 
 # Auto-load model from ~/.bashrc if not already defined in current shell session
 if [ -z "$GEMINI_MODEL" ]; then
-  MODEL_LINE=$(grep "export GEMINI_MODEL=" /home/niranjan/.bashrc | head -n 1)
+  MODEL_LINE=$(grep "export GEMINI_MODEL=" "$HOME/.bashrc" 2>/dev/null | head -n 1)
   if [ -n "$MODEL_LINE" ]; then
     MODEL_VAL=$(echo "$MODEL_LINE" | cut -d'"' -f2)
     if [ -n "$MODEL_VAL" ] && [ "$MODEL_VAL" != "export GEMINI_MODEL=" ]; then
@@ -43,11 +43,15 @@ show_help() {
   echo "  record-system [output.wav]      Record audio from your computer (Zoom / Online Class)"
   echo "  transcribe <file.wav> [--local]  Transcribe audio to text (defaults to Gemini cloud, --local for Whisper)"
   echo "  make-notes <file.txt> [context] Turn transcript text into formatted Markdown notes (.notes.md)"
-  echo "  compress <path>                Compress all WAV files in a directory (or a single WAV file) to MP3, deleting original WAVs to save space"
+  echo "  compress <path> [--keep-wav]   Compress WAV files in a directory or file to MP3 (deletes original WAVs unless --keep-wav is specified)"
+  echo ""
+  echo "Options:"
+  echo "  --keep-wav                      Retain the original high-resolution WAV files after compression"
   echo ""
   echo "Environment Variables:"
   echo "  GEMINI_API_KEY  Your Google Gemini API Key"
   echo "  GEMINI_MODEL    Gemini model to use (default: gemini-2.5-flash)"
+  echo "  KEEP_WAV        Set to 'true' to always retain original WAV files"
   echo ""
 }
 
@@ -68,7 +72,7 @@ if [ -z "$1" ]; then
   fi
   
   # Desktop notes directory
-  TARGET_DIR="/home/niranjan/Desktop/notes/$SESSION_NAME"
+  TARGET_DIR="$HOME/Desktop/notes/$SESSION_NAME"
   mkdir -p "$TARGET_DIR"
   
   AUDIO_FILE_WAV="$TARGET_DIR/${SESSION_NAME}.wav"
@@ -106,8 +110,12 @@ if [ -z "$1" ]; then
   if [ -f "$AUDIO_FILE_WAV" ]; then
     echo "📦 Optimizing storage: compressing WAV to MP3 (32kbps mono)..."
     if ffmpeg -y -i "$AUDIO_FILE_WAV" -ac 1 -ar 16000 -ab 32k "$AUDIO_FILE" &>/dev/null; then
-      rm "$AUDIO_FILE_WAV"
-      echo "✅ Compressed to $(du -h "$AUDIO_FILE" | cut -f1). Original WAV deleted to save space!"
+      if [ "$KEEP_WAV" = "true" ] || [[ " $* " =~ " --keep-wav " ]]; then
+        echo "✅ Compressed to $(du -h "$AUDIO_FILE" | cut -f1). Original WAV kept as requested."
+      else
+        rm "$AUDIO_FILE_WAV"
+        echo "✅ Compressed to $(du -h "$AUDIO_FILE" | cut -f1). Original WAV deleted to save space!"
+      fi
     else
       echo "⚠️  Compression failed. Falling back to raw WAV."
       AUDIO_FILE="$AUDIO_FILE_WAV"
@@ -150,8 +158,8 @@ if [ -z "$1" ]; then
     FINAL_DOCX="$TARGET_DIR/${SESSION_NAME}.notes.docx"
     FINAL_MD="$TARGET_DIR/${SESSION_NAME}.notes.md"
     
-    # Move DOCX to /home/niranjan/Desktop/notes/
-    DESKTOP_NOTES_DIR="/home/niranjan/Desktop/notes"
+    # Move DOCX to $HOME/Desktop/notes/
+    DESKTOP_NOTES_DIR="$HOME/Desktop/notes"
     mkdir -p "$DESKTOP_NOTES_DIR"
     
     if [ -f "$FINAL_DOCX" ]; then
@@ -161,17 +169,23 @@ if [ -z "$1" ]; then
       echo "⚠️  Structured DOCX file not found!"
     fi
     
-    # Move recording to /home/niranjan/Desktop/classrecordings/[online/offline]/
+    # Move recording to $HOME/Desktop/classrecordings/[online/offline]/
     if [ "$MODE_CHOICE" == "1" ]; then
-      RECORDING_DEST="/home/niranjan/Desktop/classrecordings/online"
+      RECORDING_DEST="$HOME/Desktop/classrecordings/online"
     else
-      RECORDING_DEST="/home/niranjan/Desktop/classrecordings/offline"
+      RECORDING_DEST="$HOME/Desktop/classrecordings/offline"
     fi
     mkdir -p "$RECORDING_DEST"
     
     if [ -f "$AUDIO_FILE" ]; then
       mv "$AUDIO_FILE" "$RECORDING_DEST/${SESSION_NAME}.mp3"
       echo "✅ Moved recording to: $RECORDING_DEST/${SESSION_NAME}.mp3"
+    fi
+    
+    # Move original WAV recording if it was kept
+    if [ -f "$AUDIO_FILE_WAV" ]; then
+      mv "$AUDIO_FILE_WAV" "$RECORDING_DEST/${SESSION_NAME}.wav"
+      echo "✅ Moved original WAV recording to: $RECORDING_DEST/${SESSION_NAME}.wav"
     fi
     
     # Delete temporary text and markdown files
@@ -293,8 +307,12 @@ case "$1" in
         mp3_file="${wav_file%.wav}.mp3"
         echo "⚡ Compressing $(basename "$wav_file") ($(du -h "$wav_file" | cut -f1)) to mono MP3..."
         if ffmpeg -y -i "$wav_file" -ac 1 -ar 16000 -ab 32k "$mp3_file" &>/dev/null; then
-          rm "$wav_file"
-          echo "✅ Compressed to $(du -h "$mp3_file" | cut -f1). Original WAV deleted!"
+          if [ "$KEEP_WAV" = "true" ] || [[ " $* " =~ " --keep-wav " ]]; then
+            echo "✅ Compressed to $(du -h "$mp3_file" | cut -f1). Original WAV kept."
+          else
+            rm "$wav_file"
+            echo "✅ Compressed to $(du -h "$mp3_file" | cut -f1). Original WAV deleted!"
+          fi
         else
           echo "❌ Failed to compress $(basename "$wav_file")"
         fi
@@ -303,8 +321,12 @@ case "$1" in
       mp3_file="${TARGET%.wav}.mp3"
       echo "⚡ Compressing $(basename "$TARGET") to mono MP3..."
       if ffmpeg -y -i "$TARGET" -ac 1 -ar 16000 -ab 32k "$mp3_file" &>/dev/null; then
-        rm "$TARGET"
-        echo "✅ Compressed to $(du -h "$mp3_file" | cut -f1). Original WAV deleted!"
+        if [ "$KEEP_WAV" = "true" ] || [[ " $* " =~ " --keep-wav " ]]; then
+          echo "✅ Compressed to $(du -h "$mp3_file" | cut -f1). Original WAV kept."
+        else
+          rm "$TARGET"
+          echo "✅ Compressed to $(du -h "$mp3_file" | cut -f1). Original WAV deleted!"
+        fi
       else
         echo "❌ Failed to compress $(basename "$TARGET")"
       fi

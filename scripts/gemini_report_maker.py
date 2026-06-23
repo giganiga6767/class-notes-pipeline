@@ -637,4 +637,16 @@ if __name__ == "__main__":
     elif rest and not rest[0].startswith("--"):
         files = rest
 
-    generate_report(files, out_file, topic)
+    try:
+        generate_report(files, out_file, topic)
+    except Exception as e:
+        print("\n" + "!"*60)
+        print("❌ Error during report compilation process.")
+        err_msg = str(e).lower()
+        if "429" in err_msg or "quota" in err_msg or "limit" in err_msg or "resource_exhausted" in err_msg or "exhausted" in err_msg:
+            print("⚠️  Gemini API quota or rate limit exceeded.")
+            print("💡 Suggestion: Try again later or check your Gemini subscription limits.")
+        else:
+            print(f"Details: {e}")
+        print("!"*60 + "\n")
+        sys.exit(1)

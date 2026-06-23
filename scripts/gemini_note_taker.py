@@ -261,17 +261,28 @@ if __name__ == "__main__":
     raw = input_path.read_text(encoding="utf-8")
     print(f"📄 Processing {len(raw):,} characters from {input_path.name}...")
 
-    result = process_notes(raw, context)
-
-    output_path.write_text(result, encoding="utf-8")
-    print(f"✅  Clean notes saved → {output_path}")
-    
-    docx_path = input_path.with_suffix(".notes.docx")
     try:
-        save_notes_as_docx(result, docx_path)
-        print(f"✅  Word document notes saved → {docx_path}")
+        result = process_notes(raw, context)
+        output_path.write_text(result, encoding="utf-8")
+        print(f"✅  Clean notes saved → {output_path}")
+        
+        docx_path = input_path.with_suffix(".notes.docx")
+        try:
+            save_notes_as_docx(result, docx_path)
+            print(f"✅  Word document notes saved → {docx_path}")
+        except Exception as e:
+            print(f"⚠️  Failed to save DOCX notes: {e}")
     except Exception as e:
-        print(f"⚠️  Failed to save DOCX notes: {e}")
+        print("\n" + "!"*60)
+        print("❌ Error during note-taking process.")
+        err_msg = str(e).lower()
+        if "429" in err_msg or "quota" in err_msg or "limit" in err_msg or "resource_exhausted" in err_msg or "exhausted" in err_msg:
+            print("⚠️  Gemini API quota or rate limit exceeded.")
+            print("💡 Suggestion: Try again later, configure a different GEMINI_MODEL, or set up local LLMs.")
+        else:
+            print(f"Details: {e}")
+        print("!"*60 + "\n")
+        sys.exit(1)
         
     print("\n" + "─"*60)
     print(result[:800] + ("..." if len(result) > 800 else ""))

@@ -119,11 +119,24 @@ if __name__ == "__main__":
     if not audio.exists():
         sys.exit(f"❌  Audio file not found: {audio}")
         
-    if use_local:
-        text = transcribe_whisper(audio)
-    else:
-        text = transcribe_gemini(audio)
-        
-    out_text_path = audio.with_suffix(".txt")
-    out_text_path.write_text(text, encoding="utf-8")
-    print(f"\n✅  Transcription completed and saved → {out_text_path}")
+    try:
+        if use_local:
+            text = transcribe_whisper(audio)
+        else:
+            text = transcribe_gemini(audio)
+            
+        out_text_path = audio.with_suffix(".txt")
+        out_text_path.write_text(text, encoding="utf-8")
+        print(f"\n✅  Transcription completed and saved → {out_text_path}")
+    except Exception as e:
+        print("\n" + "!"*60)
+        print("❌ Error during transcription process.")
+        err_msg = str(e).lower()
+        if "429" in err_msg or "quota" in err_msg or "limit" in err_msg or "resource_exhausted" in err_msg or "exhausted" in err_msg:
+            print("⚠️  Gemini API quota or rate limit exceeded.")
+            print("💡 Suggestion: Run with --local to use offline Whisper model on your CPU/GPU:")
+            print(f"   python class_transcriber.py {sys.argv[1]} --local")
+        else:
+            print(f"Details: {e}")
+        print("!"*60 + "\n")
+        sys.exit(1)
