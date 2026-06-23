@@ -44,28 +44,27 @@ The pipeline automatically handles directories, files, and cleans up temporary f
 
 ## Requirements & Setup
 
-### System Tools
-Ensure `ffmpeg` and audio recording tools are installed on your Linux system:
+### Option 1: Automatic Setup (Recommended)
+You can run the interactive setup script which automatically checks system dependencies (like `ffmpeg`), installs python packages, and configures your Gemini API key:
 ```bash
-sudo apt update
-sudo apt install ffmpeg pulseaudio-utils alsa-utils -y
+bash setup.sh
 ```
 
-### Python Packages
-Install the required Python packages:
-```bash
-pip install google-genai python-docx pandas matplotlib seaborn --break-system-packages
-```
-
-### API Configuration
-Set your Gemini API Key in your shell configuration or `~/.bashrc`:
-```bash
-export GEMINI_API_KEY="your_api_key_here"
-```
-Optional: You can specify a default Gemini model (defaults to `gemini-2.5-flash`):
-```bash
-export GEMINI_MODEL="gemini-2.5-pro"
-```
+### Option 2: Manual Setup
+If you prefer to configure the environment manually:
+1. **System Tools**: Ensure `ffmpeg` and audio utilities are installed:
+   ```bash
+   sudo apt update
+   sudo apt install ffmpeg pulseaudio-utils alsa-utils -y
+   ```
+2. **Python Packages**: Install the python requirements:
+   ```bash
+   pip install -r requirements.txt --break-system-packages
+   ```
+3. **API Keys**: Export your Gemini API Key:
+   ```bash
+   export GEMINI_API_KEY="your_api_key_here"
+   ```
 
 ---
 
