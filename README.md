@@ -1,52 +1,52 @@
-# 🎓 Class Notes Pipeline
+# Class Notes Pipeline
 
-This project is 100% **VIBE CODED** to secure absolute freedom from expensive, restrictive subscription wrappers (like WisprFlow, Otter.ai, Plaud, and Fathom) and bypass annoying API rate limits. 
+This project is a self-hosted alternative to paid subscription transcription wrappers (such as WisprFlow, Otter.ai, Plaud, and Fathom). It was developed collaboratively using conversational agent-assisted development (colloquially referred to as "vibe coding") to bypass API rate limits and avoid subscription fees.
 
-It is an automated, intelligent command-line pipeline designed to record class lectures or online meetings, compress audio on-the-fly to save disk space, transcribe utilizing Google Gemini on Cloud TPUs (free today using Gemini's developer free tier), and format raw text transcripts into beautiful, production-grade Microsoft Word (`.docx`) notes.
+The system is an automated command-line pipeline designed to record class lectures or online meetings, compress audio on-the-fly to minimize storage consumption, transcribe the recordings using Google Gemini on Cloud TPUs (utilizing Gemini's developer free tier), and format the raw text transcripts into structured Microsoft Word (`.docx`) documents.
 
-The pipeline is completely self-contained and automatically manages directories, files, and post-recording cleanup.
+The pipeline is self-contained and automatically handles directories, file paths, and post-recording cleanup.
 
 ---
 
-## ✨ Key Features
+## Key Features
 
 1. **Dual Recording Modes**
-   * **Online Class**: Captures desktop/system audio directly from loopback sinks (perfect for Zoom, Teams, or browser-based lectures).
-   * **Offline Class**: Captures physical microphone inputs (ideal for in-person classroom lectures).
+   * **Online Class**: Captures desktop/system audio directly from loopback sinks (designed for Zoom, Teams, or web browser streams).
+   * **Offline Class**: Captures physical microphone input (designed for in-person classroom lectures).
 
-2. **Storage-Optimized Audio (Up to 98% Space Saved)**
-   * Recording creates raw, high-fidelity temporary `.wav` files.
-   * Immediately after recording stops, the pipeline uses `ffmpeg` to compress the audio into a mono `.mp3` (16kHz, 32kbps), which keeps voice clarity perfect for transcription but reduces file sizes by up to 98%.
-   * The original raw WAV is automatically deleted to reclaim disk space.
+2. **Storage-Optimized Audio**
+   * The recording process creates temporary, high-fidelity `.wav` files.
+   * Immediately upon recording termination, the pipeline uses `ffmpeg` to compress the audio into a mono `.mp3` file (16kHz, 32kbps). This preserves vocal clarity for transcription while reducing the file size by up to 98%.
+   * The raw WAV file is deleted immediately to reclaim disk space.
 
-3. **Cloud-Based Transcription via Gemini**
-   * Fast audio uploads and Cloud TPU-powered transcription in seconds.
-   * Configurable model selection through the interactive pipeline or environment variable (`GEMINI_MODEL`).
+3. **Cloud-Based Transcription**
+   * Leverages Gemini APIs for rapid transcription using Cloud TPUs.
+   * Supports dynamic model selection via the interactive pipeline prompt or the `GEMINI_MODEL` environment variable.
 
 4. **Transient Error Resilience**
-   * Network requests are wrapped in retry loops with exponential backoff.
-   * Gracefully handles transient API spikes like `503 Service Unavailable` or `429 Rate Limit/Quota Exceeded` without crashing mid-run.
+   * API requests (upload and content generation) are wrapped in retry loops with exponential backoff.
+   * Automatically handles transient API exceptions such as `503 Service Unavailable` or `429 Rate Limit/Quota Exceeded` without terminating the execution.
 
 5. **Auto-Generated DOCX Notes**
-   * Leverages Gemini to filter filler words ("um", "uh", "like") and fix grammar.
-   * Structuring prompts organize the transcript into clean sections including a Summary, Topics, and Action Items.
-   * The text is styled directly into a beautiful Word document (`.notes.docx`) with styled Arial fonts, custom margins, colored headers, and parsed inline formatting (`**bold**`, `*italics*`).
+   * Uses Gemini to clean transcripts, removing filler words and correcting grammatical structures.
+   * Structures the transcript into logical sections, including a Summary, Topics, and Action Items.
+   * Formats the content directly into a styled Word document (`.notes.docx`) using custom margins, custom heading colors, and parsed inline formatting (`**bold**`, `*italics*`).
 
 6. **Automatic File Organization & Clean-up**
-   * Automatically moves the final structured notes to `~/Desktop/notes/<session_name>.docx`.
-   * Automatically moves the compressed audio recording to `~/Desktop/classrecordings/[online|offline]/<session_name>.mp3`.
-   * Automatically deletes temporary transcript `.txt` files, markdown files, and temporary directories.
+   * Moves the final Word document to `~/Desktop/notes/<session_name>.docx`.
+   * Moves the compressed MP3 recording to `~/Desktop/classrecordings/[online|offline]/<session_name>.mp3`.
+   * Deletes the temporary `.txt` transcript file, temporary markdown files, and empty workspace folders.
 
 7. **Standalone CLI Commands**
-   * Manually compress historical WAV folders or files to MP3 using `class-notes compress <path>`.
-   * Manually compile a compiled PDF/DOCX report of multiple files using `class-notes report <dir>`.
+   * Manually compress old WAV files to MP3 using `class-notes compress <path>`.
+   * Manually compile session resources into a unified report using `class-notes report <dir>`.
 
 ---
 
-## 🛠️ Requirements & Setup
+## Requirements & Setup
 
 ### System Dependencies
-Ensure `ffmpeg` and audio capture packages are installed on your Linux system:
+Ensure `ffmpeg` and audio capture utilities are installed:
 ```bash
 sudo apt update
 sudo apt install ffmpeg pulseaudio-utils alsa-utils -y
@@ -59,29 +59,29 @@ pip install google-genai python-docx pandas matplotlib seaborn --break-system-pa
 ```
 
 ### Environment Variables
-Export your Gemini API Key in your shell or add it to `~/.bashrc`:
+Set the Gemini API Key in your shell configuration or `~/.bashrc`:
 ```bash
 export GEMINI_API_KEY="your_api_key_here"
 ```
-Optional: You can also pre-define a default Gemini model (defaults to `gemini-2.5-flash`):
+Optional: You can also specify a default Gemini model (defaults to `gemini-2.5-flash`):
 ```bash
 export GEMINI_MODEL="gemini-2.5-pro"
 ```
 
 ---
 
-## 🚀 Usage
+## Usage
 
 ### 1. Interactive Mode (Recording + Transcribing + Note-taking)
-Run the script without arguments to start the guided wizard:
+Execute the script without arguments to start the interactive workflow:
 ```bash
 bash class_notes.sh
 ```
-Follow the prompts to select recording modes (Online/Offline), input the session name, control recording capture (press `Ctrl+C` to stop recording), choose your Gemini model, and watch the pipeline automatically record, compress, transcribe, format, and organize your files!
+Follow the console prompts to select the recording mode, name the session, control audio capture (terminate using `Ctrl+C`), and select the target Gemini model.
 
 ### 2. Manual Audio Compression
-If you have old recordings eating up disk space, optimize them retroactively:
-* Compress all large WAV files in a directory:
+To compress existing large WAV files to MP3:
+* Compress all WAV files in a directory:
   ```bash
   bash class_notes.sh compress ~/Desktop/notes/my_session
   ```
@@ -91,7 +91,7 @@ If you have old recordings eating up disk space, optimize them retroactively:
   ```
 
 ### 3. Compile DOCX & PDF Reports
-Compile all notes, text, CSVs, and images in a session directory into a unified DOCX/PDF report (generating Matplotlib charts where data is present):
+Compile note files, transcripts, CSV data, and images in a directory into a unified DOCX/PDF report:
 ```bash
 bash class_notes.sh report ~/Desktop/notes/my_session
 ```
@@ -108,34 +108,34 @@ bash class_notes.sh make-notes <transcript.txt> [context]
 
 ---
 
-## 🏁 Windows Compatibility & Setup
+## Windows Compatibility & Setup
 
-Yes, it is absolutely possible to run this pipeline on Windows! You have two main routes:
+This pipeline can be run on Windows systems using one of two methods:
 
-### Route A: WSL (Windows Subsystem for Linux) — Recommended
-Since WSL runs a native Linux kernel (like Ubuntu), this pipeline works **out of the box** with minor adjustments to audio recording:
+### Method A: WSL (Windows Subsystem for Linux)
+Because WSL runs a native Linux kernel, this pipeline works with minor configuration of the audio recording inputs:
 1. Install WSL from PowerShell: `wsl --install`
-2. Open your WSL terminal and follow the **Linux Ubuntu setup instructions** above to install `ffmpeg`, `python3`, and python packages.
-3. PulseAudio in WSL can capture Windows audio sinks. Alternatively, you can record using a native Windows terminal and run the transcription/note-taking scripts on the recorded files in WSL.
+2. Launch the WSL Ubuntu instance and install `ffmpeg`, `python3`, and python dependencies.
+3. Configure PulseAudio or record using a native Windows terminal, then copy files to the WSL environment.
 
-### Route B: Native Windows (PowerShell + WASAPI)
-To run natively without WSL, you can port the Bash script (`class_notes.sh`) to a PowerShell script (`class_notes.ps1`):
+### Method B: Native Windows (PowerShell + WASAPI)
+To run natively on Windows, port the controller script (`class_notes.sh`) to a PowerShell script (`class_notes.ps1`):
 1. **Python Dependencies**: Install Python for Windows and run `pip install google-genai python-docx pandas matplotlib seaborn`.
-2. **FFmpeg for Windows**: Download the Windows builds of FFmpeg and add the `bin` folder to your Windows system Environment variables PATH.
-3. **Native Audio Capture**: On Windows, `ffmpeg` can capture speaker output (desktop loopback) natively using **WASAPI** (Windows Audio Session API) or microphone devices via **DirectShow**:
-   * **Capture Zoom / System Audio**:
+2. **FFmpeg for Windows**: Download the Windows builds of FFmpeg and add the executable to the system PATH.
+3. **Audio Capture Devices**: Use FFmpeg to capture audio inputs natively via **WASAPI** (Windows Audio Session API) or **DirectShow**:
+   * **System Audio Capture**:
      ```powershell
      ffmpeg -f wasapi -i audio="Speakers (Loopback)" output.wav
      ```
-   * **Capture Microphone**:
+   * **Microphone Input Capture**:
      ```powershell
-     ffmpeg -f dshow -i audio="Microphone (Your Device Name)" output.wav
+     ffmpeg -f dshow -i audio="Microphone (Device Name)" output.wav
      ```
-4. **PowerShell Flow**: Replace bash variables with PowerShell script flow to run `python scripts\class_transcriber.py` and `python scripts\gemini_note_taker.py`.
+4. **PowerShell execution**: Port shell commands to run Python scripts natively using Windows path structures.
 
 ---
 
-## 📁 Repository Structure
+## Repository Structure
 
 ```
 .
