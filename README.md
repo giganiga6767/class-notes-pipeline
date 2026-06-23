@@ -71,44 +71,47 @@ If you prefer to configure the environment manually:
 ## Usage
 
 ### 1. Interactive Recording
-Type the command without arguments to run the guided setup:
+Start the guided setup (walks you through recording, transcribing, and note-taking):
 ```bash
-bash class_notes.sh
+bash class_notes.sh record
+```
+*(You can also run `bash class_notes.sh` without arguments to start the same guide).*
+
+### 2. Record Offline (Microphone)
+Record your physical microphone directly:
+```bash
+bash class_notes.sh recordoffline [output.wav]
 ```
 
-### 2. Record Audio Directly
-* Record microphone input:
-  ```bash
-  bash class_notes.sh mic [output.wav]
-  ```
-* Record speaker/system audio:
-  ```bash
-  bash class_notes.sh system [output.wav]
-  ```
+### 3. Record Online (Speakers / Zoom)
+Record your computer speakers directly:
+```bash
+bash class_notes.sh recordonline [output.wav]
+```
 
-### 3. Transcribe Audio Directly
-* Transcribe an audio file to text:
-  ```bash
-  bash class_notes.sh audio <file.mp3/wav> [--local]
-  ```
+### 4. Transcribe Locally (Offline)
+Transcribe an audio file on your local machine without the internet:
+```bash
+bash class_notes.sh use_local <file.mp3/wav>
+```
 
-### 4. Format Notes Directly
-* Turn a transcript text file into formatted Word notes:
-  ```bash
-  bash class_notes.sh notes <transcript.txt>
-  ```
+### 5. Compress Audio (Save Space)
+Compress large WAV files to MP3 and delete the original to free up space:
+```bash
+bash class_notes.sh compress <folder_or_file> [--keep-wav]
+```
 
-### 5. Shrink Audio Files (Compress)
-* Compress large WAV files to MP3 to save space:
-  ```bash
-  bash class_notes.sh shrink <folder_or_file> [--keep-wav]
-  ```
+### 6. Format Notes Directly
+Turn a transcript text file into formatted Word notes:
+```bash
+bash class_notes.sh notes <transcript.txt>
+```
 
-### 6. Compile Reports
-* Compile all notes, CSVs, and images in a folder into a final document:
-  ```bash
-  bash class_notes.sh report <folder>
-  ```
+### 7. Compile Reports
+Compile notes, CSVs, and images in a folder into a final document:
+```bash
+bash class_notes.sh report <folder>
+```
 
 ---
 

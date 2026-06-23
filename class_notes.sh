@@ -32,31 +32,30 @@ REPORT_MAKER_SCRIPT="$SCRIPT_DIR/scripts/gemini_report_maker.py"
 
 
 show_help() {
-  echo "🎓 Class Notes Pipeline CLI"
-  echo "Usage: class-notes [command] [arguments]"
-  echo ""
-  echo "If run without arguments, it starts the interactive session recorder."
+  echo "Class Notes Pipeline CLI"
+  echo "Usage: bash class_notes.sh [command] [arguments]"
   echo ""
   echo "Commands:"
-  echo "  report <session_dir>           Compile all files in a session directory into a DOCX & PDF report"
-  echo "  record-mic [output.wav]         Record audio from your physical microphone"
-  echo "  record-system [output.wav]      Record audio from your computer (Zoom / Online Class)"
-  echo "  transcribe <file.wav> [--local]  Transcribe audio to text (defaults to Gemini cloud, --local for Whisper)"
-  echo "  make-notes <file.txt> [context] Turn transcript text into formatted Markdown notes (.notes.md)"
-  echo "  compress <path> [--keep-wav]   Compress WAV files in a directory or file to MP3 (deletes original WAVs unless --keep-wav is specified)"
+  echo "  record               Start the interactive recording and note-taking guide"
+  echo "  recordonline         Record your computer speakers (Zoom/Online Class) directly"
+  echo "  recordoffline        Record your physical microphone directly"
+  echo "  use_local <file>     Transcribe an audio file locally without the internet"
+  echo "  compress <path>      Compress WAV files to MP3 to save space"
+  echo "  notes <file.txt>     Clean up a transcript and make structured Word notes"
+  echo "  report <folder>      Compile notes and data in a folder into a final report"
   echo ""
   echo "Options:"
-  echo "  --keep-wav                      Retain the original high-resolution WAV files after compression"
+  echo "  --keep-wav           Do not delete the original WAV files after compression"
   echo ""
   echo "Environment Variables:"
-  echo "  GEMINI_API_KEY  Your Google Gemini API Key"
-  echo "  GEMINI_MODEL    Gemini model to use (default: gemini-2.5-flash)"
-  echo "  KEEP_WAV        Set to 'true' to always retain original WAV files"
+  echo "  GEMINI_API_KEY       Your Google Gemini API Key"
+  echo "  GEMINI_MODEL         Gemini model to use (default: gemini-2.5-flash)"
+  echo "  KEEP_WAV             Set to 'true' to always retain original WAV files"
   echo ""
 }
 
-# ── Interactive Mode (No Arguments) ─────────────────────────────────────────
-if [ -z "$1" ]; then
+# ── Interactive Mode (No Arguments or 'record' command) ─────────────────────
+if [ -z "$1" ] || [ "$1" == "record" ]; then
   echo "🎓 Welcome to the Class Notes Pipeline"
   echo "----------------------------------------"
   echo "Select Recording Mode:"
@@ -252,14 +251,14 @@ case "$1" in
     echo "   📕 PDF Doc:  ${OUT_DOCX%.docx}.pdf"
     ;;
 
-  record-mic|mic)
+  record-mic|mic|recordoffline)
     OUT_FILE="${2:-mic_record.wav}"
     echo "🎙️ Recording from Microphone..."
     echo "🛑 Press Ctrl+C to STOP."
     arecord -f S16_LE -c 1 -r 16000 "$OUT_FILE"
     ;;
 
-  record-system|system)
+  record-system|system|recordonline)
     OUT_FILE="${2:-system_record.wav}"
     echo "💻 Recording system audio (Zoom) from default monitor output..."
     echo "🛑 Press Ctrl+C to STOP."
@@ -284,6 +283,14 @@ case "$1" in
       exit 1
     fi
     python3 "$TRANSCRIBER_SCRIPT" "$2" "$3"
+    ;;
+
+  use_local)
+    if [ -z "$2" ]; then
+      echo "❌ Please specify the audio file path."
+      exit 1
+    fi
+    python3 "$TRANSCRIBER_SCRIPT" "$2" --local
     ;;
 
   make-notes|notes)
