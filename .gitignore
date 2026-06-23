@@ -1,0 +1,25 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+.pytest_cache/
+.venv/
+venv/
+ENV/
+env/
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Local environment / keys
+.env
+.env.local
+
+# Local media output (if any)
+*.wav
+*.mp3
+*.docx
+*.pdf
+*.txt
+*.notes.md
