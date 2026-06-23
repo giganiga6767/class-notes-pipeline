@@ -107,6 +107,26 @@ bash class_notes.sh make-notes <transcript.txt> [context]
 
 ---
 
+## Running Local AI (Offline Mode)
+
+If you have a laptop with a powerful graphics card (GPU), you can run the entire pipeline completely offline without using Google Gemini or the internet.
+
+### 1. Local Audio Transcription
+Local transcription is already built directly into the tool using **Whisper** (specifically the `faster-whisper` package):
+* When running the interactive recorder, select **Option 2 (Local Mode)** when prompted for transcription.
+* When running via command line, append the `--local` flag:
+  ```bash
+  bash class_notes.sh transcribe recording.mp3 --local
+  ```
+
+### 2. Local Note-Taking
+To clean and format notes without sending data to Google's servers:
+1. Download and install **Ollama** (a free tool that lets you run models like Llama 3 or Mistral locally on your computer).
+2. Start the local Ollama server.
+3. Replace the Google Gemini API client setup in `gemini_note_taker.py` with Ollama's local python client to send the prompts to your local GPU.
+
+---
+
 ## Windows Compatibility & Setup
 
 Yes, it is possible to run this pipeline on Windows using **WSL (Windows Subsystem for Linux)**:
