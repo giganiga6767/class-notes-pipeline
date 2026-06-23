@@ -1,10 +1,20 @@
 # Class Notes Pipeline
 
-This project is a self-hosted alternative to paid subscription transcription tools (such as WisprFlow, Otter.ai, Plaud, and Fathom). It was built using AI-assisted development (colloquially called "vibe coding") to bypass usage limits and avoid monthly subscription fees.
+This project was **100% Vibe-Coded using AI** as a self-hosted alternative to paid subscription transcription tools (such as WisprFlow, Otter.ai, Plaud, and Fathom) to bypass usage limits and avoid monthly subscription fees.
 
-The system is an automated tool designed to record class lectures or online meetings, compress the audio to save disk space, transcribe the speech using Google Gemini (free today under Gemini's developer free tier), and format the transcripts into structured Microsoft Word (`.docx`) notes.
+### Everything is Automatic
 
-The pipeline automatically handles directories, files, and cleans up temporary folders when finished.
+You do not need to memorize or use any of the manual subcommands. By simply running the main script, the interactive guide takes care of everything automatically:
+1. Guides you through starting and stopping the recording.
+2. Compresses the audio automatically to save disk space.
+3. Automatically transcribes the recording (using cloud Gemini or local Whisper).
+4. Automatically formats the transcript into a beautifully styled Microsoft Word notes document.
+5. Neatly moves the final notes and recording files to your Desktop folders and deletes all temporary files automatically.
+
+One command is all you need:
+```bash
+bash class_notes.sh
+```
 
 ---
 
