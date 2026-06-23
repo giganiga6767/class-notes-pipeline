@@ -252,14 +252,14 @@ case "$1" in
     echo "   📕 PDF Doc:  ${OUT_DOCX%.docx}.pdf"
     ;;
 
-  record-mic)
+  record-mic|mic)
     OUT_FILE="${2:-mic_record.wav}"
     echo "🎙️ Recording from Microphone..."
     echo "🛑 Press Ctrl+C to STOP."
     arecord -f S16_LE -c 1 -r 16000 "$OUT_FILE"
     ;;
 
-  record-system)
+  record-system|system)
     OUT_FILE="${2:-system_record.wav}"
     echo "💻 Recording system audio (Zoom) from default monitor output..."
     echo "🛑 Press Ctrl+C to STOP."
@@ -278,7 +278,7 @@ case "$1" in
     fi
     ;;
 
-  transcribe)
+  transcribe|audio)
     if [ -z "$2" ]; then
       echo "❌ Please specify the audio file path."
       exit 1
@@ -286,7 +286,7 @@ case "$1" in
     python3 "$TRANSCRIBER_SCRIPT" "$2" "$3"
     ;;
 
-  make-notes)
+  make-notes|notes)
     if [ -z "$2" ]; then
       echo "❌ Please specify the transcript text file path."
       exit 1
@@ -294,7 +294,7 @@ case "$1" in
     python3 "$NOTE_TAKER_SCRIPT" "$2" "$3"
     ;;
 
-  compress)
+  compress|shrink)
     if [ -z "$2" ]; then
       echo "❌ Please specify a session directory or a WAV file to compress."
       exit 1

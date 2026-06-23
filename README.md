@@ -71,38 +71,44 @@ If you prefer to configure the environment manually:
 ## Usage
 
 ### 1. Interactive Recording
-Run the script without arguments to start:
+Type the command without arguments to run the guided setup:
 ```bash
 bash class_notes.sh
 ```
-Follow the screen prompts to select your recording mode, name the session, control capture (press `Ctrl+C` to stop), and choose the Gemini model.
 
-### 2. Manual Audio Compression
-To compress old recordings and delete the original large files:
-* Compress all files in a folder:
+### 2. Record Audio Directly
+* Record microphone input:
   ```bash
-  bash class_notes.sh compress ~/Desktop/notes/my_session
+  bash class_notes.sh mic [output.wav]
   ```
-* Compress a single file:
+* Record speaker/system audio:
   ```bash
-  bash class_notes.sh compress /path/to/recording.wav
+  bash class_notes.sh system [output.wav]
   ```
 
-### 3. Compile Reports
-Compile notes, transcripts, CSV data, and images in a folder into a unified report:
-```bash
-bash class_notes.sh report ~/Desktop/notes/my_session
-```
+### 3. Transcribe Audio Directly
+* Transcribe an audio file to text:
+  ```bash
+  bash class_notes.sh audio <file.mp3/wav> [--local]
+  ```
 
-### 4. Transcribe a File Directly
-```bash
-bash class_notes.sh transcribe <file.wav/mp3> [--local]
-```
+### 4. Format Notes Directly
+* Turn a transcript text file into formatted Word notes:
+  ```bash
+  bash class_notes.sh notes <transcript.txt>
+  ```
 
-### 5. Format Transcript to Notes Directly
-```bash
-bash class_notes.sh make-notes <transcript.txt> [context]
-```
+### 5. Shrink Audio Files (Compress)
+* Compress large WAV files to MP3 to save space:
+  ```bash
+  bash class_notes.sh shrink <folder_or_file> [--keep-wav]
+  ```
+
+### 6. Compile Reports
+* Compile all notes, CSVs, and images in a folder into a final document:
+  ```bash
+  bash class_notes.sh report <folder>
+  ```
 
 ---
 
